@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Instagram Viral Videos</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      text-align: center;
+    }
+    .container {
+      padding: 20px;
+    }
+    .profile-pic {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-top: 20px;
+    }
+    h1 {
+      font-size: 28px;
+      margin: 10px 0;
+    }
+    p {
+      font-size: 18px;
+      margin: 5px 0 20px 0;
+    }
+    .telegram-btn, .btn {
+      display: block;
+      width: 95%;
+      max-width: 450px;
+      margin: 12px auto;
+      padding: 18px;
+      text-decoration: none;
+      font-size: 22px;
+      font-weight: bold;
+      border-radius: 10px;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+    }
+    .telegram-btn {
+      background-color: #0088cc;
+      color: white;
+    }
+    .telegram-btn:hover {
+      background-color: #0070a8;
+    }
+    .btn {
+      background-color: #4CAF50;
+      color: white;
+    }
+    .btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <img src="https://i.imgur.com/Cv0Rj5z.png" alt="Profile Pic" class="profile-pic">
+  <h1>INSTAGRAM VIRAL VIDEOS</h1>
+  <p>🥵👇 ALL VIDEOS LINK FROM INSTAGRAM BIO 👇🥵</p>
+
+  <a href="https://t.me/YourTelegramLink" target="_blank" class="telegram-btn">📢 Join Telegram For Random Videos 📢</a>
+  <div id="posts"></div>
+</div>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
+    authDomain: "trending-viral-links.firebaseapp.com",
+    databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
+    projectId: "trending-viral-links",
+    storageBucket: "trending-viral-links.appspot.com",
+    messagingSenderId: "803173160374",
+    appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const postsContainer = document.getElementById('posts');
+
+  db.ref('posts').on('value', (snapshot) => {
+    postsContainer.innerHTML = '';
+    const data = snapshot.val();
+    if (data) {
+      Object.keys(data).forEach(key => {
+        const post = data[key];
+        const a = document.createElement('a');
+        a.href = post.link;
+        a.target = '_blank';
+        a.className = 'btn';
+        a.innerText = post.text;
+        postsContainer.appendChild(a);
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
