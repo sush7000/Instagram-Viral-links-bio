@@ -1,131 +1,99 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Instagram Viral Videos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Links Panel</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      margin: 0;
-      padding: 0;
       font-family: Arial, sans-serif;
-      background-color: #f2f2f2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      overflow-x: hidden;
-    }
-    .container {
-      max-width: 600px;
-      width: 100%;
       padding: 20px;
+      background-color: #f4f4f4;
       text-align: center;
     }
-    .profile-pic {
-      width: 140px;
-      height: 140px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin-top: 20px;
-    }
-    h1 {
-      font-size: 28px;
-      margin: 10px 0;
-    }
-    p {
-      font-size: 18px;
-      margin: 5px 0 20px 0;
-    }
-    .telegram-btn, .btn {
+    input, textarea {
+      width: 100%;
+      max-width: 500px;
+      padding: 10px;
+      margin: 5px auto;
+      font-size: 16px;
       display: block;
-      width: 95%;
-      max-width: 450px;
-      margin: 12px auto;
-      padding: 18px;
-      text-decoration: none;
-      font-size: 22px;
-      font-weight: bold;
-      border-radius: 10px;
-      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
     }
-    .telegram-btn {
-      background-color: #0088cc;
-      color: white;
-    }
-    .telegram-btn:hover {
-      background-color: #0070a8;
-    }
-    .btn {
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
       background-color: #4CAF50;
       color: white;
-    }
-    .btn:hover {
-      background-color: #45a049;
-    }
-    #searchBox {
-      margin-top: 20px;
-      padding: 10px;
-      font-size: 18px;
-      width: 100%;
-      max-width: 450px;
-      border: 1px solid #ccc;
+      border: none;
       border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    .msg {
+      color: green;
+      margin-top: 10px;
     }
   </style>
 </head>
-<body><div class="container">
-  <img src="https://i.imgur.com/Cv0Rj5z.png" alt="Profile Pic" class="profile-pic">
-  <h1>INSTAGRAM VIRAL VIDEOS</h1>
-  <p>🥵👇 ALL VIDEOS LINK FROM INSTAGRAM BIO 👇🥵</p>  <!-- Telegram Join Button --><a href="https://t.me/YourTelegramLink" target="_blank" class="telegram-btn">📢 Join Telegram For Random Videos 📢</a>
+<body>
+  <h2>Update Meta Content</h2>
+  <input type="text" id="title" placeholder="Title">
+  <input type="text" id="subtitle" placeholder="Subtitle">
+  <input type="text" id="image" placeholder="Image URL">
+  <input type="text" id="telegram" placeholder="Telegram Link">
+  <button onclick="updateMeta()">Save Meta</button>  <h2>Add New Post Link</h2>
+  <input type="text" id="postTitle" placeholder="Title (e.g. Post #1)">
+  <textarea id="postLink" placeholder="Paste your full URL here..."></textarea>
+  <button onclick="addPost()">Add Link</button>
+  <p class="msg" id="msg"></p>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
+      authDomain: "trending-viral-links.firebaseapp.com",
+      databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
+      projectId: "trending-viral-links",
+      storageBucket: "trending-viral-links.appspot.com",
+      messagingSenderId: "803173160374",
+      appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
+    };
 
-  <!-- Search Box -->  <input type="text" id="searchBox" placeholder="Search by post title or link...">  <!-- Dynamic Buttons -->  <div id="posts"></div>
-</div><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
-    authDomain: "trending-viral-links.firebaseapp.com",
-    databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
-    projectId: "trending-viral-links",
-    storageBucket: "trending-viral-links.appspot.com",
-    messagingSenderId: "803173160374",
-    appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
-  };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const postsContainer = document.getElementById('posts');
-  const searchBox = document.getElementById('searchBox');
+    function updateMeta() {
+      const title = document.getElementById('title').value.trim();
+      const subtitle = document.getElementById('subtitle').value.trim();
+      const image = document.getElementById('image').value.trim();
+      const telegram = document.getElementById('telegram').value.trim();
 
-  function renderPosts(data) {
-    postsContainer.innerHTML = '';
-    Object.keys(data).forEach(key => {
-      const post = data[key];
-      const a = document.createElement('a');
-      a.href = post.link;
-      a.target = '_blank';
-      a.className = 'btn';
-      a.innerText = post.text;
-      postsContainer.appendChild(a);
-    });
-  }
+      db.ref('meta').set({
+        title, subtitle, image, telegram
+      }).then(() => {
+        document.getElementById('msg').innerText = '✅ Meta updated successfully!';
+      });
+    }
 
-  let postData = {};
-  db.ref('posts').on('value', (snapshot) => {
-    postData = snapshot.val() || {};
-    renderPosts(postData);
-  });
+    function addPost() {
+      const title = document.getElementById('postTitle').value.trim();
+      const link = document.getElementById('postLink').value.trim();
+      const msg = document.getElementById('msg');
 
-  searchBox.addEventListener('input', () => {
-    const query = searchBox.value.toLowerCase();
-    const filtered = {};
-    Object.keys(postData).forEach(key => {
-      const post = postData[key];
-      if (post.text.toLowerCase().includes(query) || post.link.toLowerCase().includes(query)) {
-        filtered[key] = post;
+      if (!title || !link) {
+        msg.style.color = 'red';
+        msg.textContent = 'Both title and link are required!';
+        return;
       }
-    });
-    renderPosts(filtered);
-  });
-</script></body>
+
+      const postKey = title.replace(/\s+/g, '').toLowerCase();
+      db.ref('posts/' + postKey).set({ text: title, link: link })
+        .then(() => {
+          msg.style.color = 'green';
+          msg.textContent = '✅ Link added successfully!';
+          document.getElementById('postTitle').value = '';
+          document.getElementById('postLink').value = '';
+        })
+        .catch(error => {
+          msg.style.color = 'red';
+          msg.textContent = 'Error: ' + error.message;
+        });
+    }
+  </script></body>
 </html>
