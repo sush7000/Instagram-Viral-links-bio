@@ -1,91 +1,65 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Update Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title id="pageTitle">Instagram Viral Videos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f4f4f4;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .container {
-      width: 100%;
-      max-width: 500px;
       padding: 20px;
-    }
-    h2 {
       text-align: center;
-      color: #333;
     }
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-      padding: 20px;
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
+    h1 {
+      font-size: 26px;
       margin: 10px 0;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    }
+    p {
       font-size: 16px;
     }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      background-color: #28a745;
+    .btn {
+      display: block;
+      background-color: #4CAF50;
       color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .btn-dark {
-      background-color: #333;
-    }
-    .post-card {
-      background: white;
-      padding: 10px;
+      padding: 14px;
       border-radius: 10px;
-      margin-bottom: 15px;
+      width: 95%;
+      max-width: 400px;
+      margin: 15px auto;
+      font-size: 18px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
+    }
+    .image-preview {
+      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+      border-radius: 8px;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="card">
-      <h2>Update Meta Content</h2>
-      <button id="toggleMeta" class="btn-dark">Edit Meta</button>
-      <div id="metaForm" style="display: none;">
-        <input type="text" id="metaTitle" placeholder="Page Title">
-        <input type="text" id="metaImage" placeholder="Image URL">
-        <input type="text" id="metaTelegram" placeholder="Telegram Link">
-        <button id="saveMeta">Save Meta</button>
-      </div>
-    </div><div class="card">
-  <h2>Add New Post Link</h2>
-  <input type="text" id="title" placeholder="Title (e.g. Post #1)">
-  <textarea id="link" placeholder="Paste your full URL here..."></textarea>
-  <button onclick="addPost()">Add Link</button>
-</div>
 
-<div class="card">
-  <h2>Search Posts</h2>
-  <input type="text" id="searchBox" placeholder="Search by title or link...">
-</div>
+  <img id="headerImage" src="" class="profile-pic" alt="Profile" />
+  <h1 id="titleText">Instagram Viral Videos</h1>
+  <p>🔥 All links from bio — click to open!</p>
+  <a id="telegramLink" href="#" class="btn" target="_blank">📢 Join Telegram</a>
 
-<div class="card">
-  <h2>All Posts</h2>
   <div id="posts"></div>
-</div>
 
-  </div>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
     const firebaseConfig = {
       apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
       authDomain: "trending-viral-links.firebaseapp.com",
@@ -98,77 +72,40 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const metaRef = db.ref("meta");
-    const postsRef = db.ref("posts");
 
-    document.getElementById("toggleMeta").onclick = () => {
-      const metaForm = document.getElementById("metaForm");
-      metaForm.style.display = metaForm.style.display === "none" ? "block" : "none";
-    };
+    const postsContainer = document.getElementById("posts");
 
-    document.getElementById("saveMeta").onclick = function () {
-      const title = document.getElementById("metaTitle").value.trim();
-      const image = document.getElementById("metaImage").value.trim();
-      const telegram = document.getElementById("metaTelegram").value.trim();
-
-      metaRef.set({ title, image, telegram }).then(() => {
-        alert("Meta saved successfully!");
-      });
-    };
-
-    function addPost() {
-      const title = document.getElementById('title').value.trim();
-      const link = document.getElementById('link').value.trim();
-      if (!title || !link) return;
-      const key = title.replace(/\s+/g, '').toLowerCase();
-      postsRef.child(key).set({ text: title, link: link }).then(loadPosts);
-      document.getElementById('title').value = '';
-      document.getElementById('link').value = '';
-    }
-
-    function loadPosts() {
-      postsRef.once("value", snapshot => {
-        const postsDiv = document.getElementById("posts");
-        postsDiv.innerHTML = "";
-        const data = snapshot.val();
-        if (!data) return;
-        Object.keys(data).forEach(key => {
-          const post = data[key];
-          const card = document.createElement("div");
-          card.className = "post-card";
-
-          const title = document.createElement("input");
-          title.value = post.text;
-          const link = document.createElement("textarea");
-          link.value = post.link;
-          const saveBtn = document.createElement("button");
-          saveBtn.innerText = "Save";
-          saveBtn.onclick = () => {
-            postsRef.child(key).set({ text: title.value, link: link.value }).then(loadPosts);
-          };
-          const delBtn = document.createElement("button");
-          delBtn.innerText = "Delete";
-          delBtn.onclick = () => {
-            postsRef.child(key).remove().then(loadPosts);
-          };
-
-          card.appendChild(title);
-          card.appendChild(link);
-          card.appendChild(saveBtn);
-          card.appendChild(delBtn);
-          postsDiv.appendChild(card);
-        });
-      });
-    }
-
-    document.getElementById("searchBox").addEventListener("input", function () {
-      const query = this.value.toLowerCase();
-      Array.from(document.getElementById("posts").children).forEach(div => {
-        const text = div.innerText.toLowerCase();
-        div.style.display = text.includes(query) ? "block" : "none";
-      });
+    db.ref("meta").once("value", (snap) => {
+      const meta = snap.val();
+      if (meta) {
+        document.getElementById("pageTitle").innerText = meta.title || "Instagram Viral Videos";
+        document.getElementById("titleText").innerText = meta.title || "Instagram Viral Videos";
+        document.getElementById("headerImage").src = meta.image || "https://i.imgur.com/Cv0Rj5z.png";
+        document.getElementById("telegramLink").href = meta.telegram || "#";
+      }
     });
 
-    loadPosts();
-  </script></body>
+    db.ref("posts").on("value", (snapshot) => {
+      postsContainer.innerHTML = "";
+      const data = snapshot.val();
+      if (data) {
+        Object.keys(data).forEach(key => {
+          const post = data[key];
+          if (post.image) {
+            const img = document.createElement("img");
+            img.src = post.image;
+            img.className = "image-preview";
+            postsContainer.appendChild(img);
+          }
+          const a = document.createElement("a");
+          a.href = post.link;
+          a.className = "btn";
+          a.target = "_blank";
+          a.innerText = post.text;
+          postsContainer.appendChild(a);
+        });
+      }
+    });
+  </script>
+</body>
 </html>
