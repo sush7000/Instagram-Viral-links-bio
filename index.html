@@ -1,99 +1,110 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Links Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Instagram Viral Videos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
       padding: 20px;
-      background-color: #f4f4f4;
       text-align: center;
     }
-    input, textarea {
-      width: 100%;
-      max-width: 500px;
-      padding: 10px;
-      margin: 5px auto;
-      font-size: 16px;
-      display: block;
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 10px;
     }
-    button {
-      padding: 10px 20px;
+    h1 {
+      font-size: 24px;
+      margin-bottom: 5px;
+    }
+    p.subtitle {
       font-size: 16px;
+      margin-top: 0;
+      margin-bottom: 15px;
+    }
+    .telegram-btn {
+      display: block;
+      background-color: #0088cc;
+      color: white;
+      padding: 14px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 15px 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+    .btn {
+      display: block;
       background-color: #4CAF50;
       color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 5px;
-    }
-    .msg {
-      color: green;
-      margin-top: 10px;
+      padding: 14px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: bold;
+      margin: 10px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
   </style>
 </head>
 <body>
-  <h2>Update Meta Content</h2>
-  <input type="text" id="title" placeholder="Title">
-  <input type="text" id="subtitle" placeholder="Subtitle">
-  <input type="text" id="image" placeholder="Image URL">
-  <input type="text" id="telegram" placeholder="Telegram Link">
-  <button onclick="updateMeta()">Save Meta</button>  <h2>Add New Post Link</h2>
-  <input type="text" id="postTitle" placeholder="Title (e.g. Post #1)">
-  <textarea id="postLink" placeholder="Paste your full URL here..."></textarea>
-  <button onclick="addPost()">Add Link</button>
-  <p class="msg" id="msg"></p>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
-      authDomain: "trending-viral-links.firebaseapp.com",
-      databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
-      projectId: "trending-viral-links",
-      storageBucket: "trending-viral-links.appspot.com",
-      messagingSenderId: "803173160374",
-      appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
-    };
+<div class="container">
+  <img src="" alt="Profile Pic" class="profile-pic" id="profilePic">
+  <h1 id="pageTitle">INSTAGRAM VIRAL VIDEOS</h1>
+  <p class="subtitle">🥵👇 ALL VIDEOS LINK FROM INSTAGRAM BIO 👇🥵</p>
+  <a href="#" id="telegramBtn" class="telegram-btn">📢 Join Telegram For Random Videos 📢</a>
+  <div id="posts"></div>
+</div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
+    authDomain: "trending-viral-links.firebaseapp.com",
+    databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
+    projectId: "trending-viral-links",
+    storageBucket: "trending-viral-links.appspot.com",
+    messagingSenderId: "803173160374",
+    appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+  const postsContainer = document.getElementById('posts');
+  const pageTitle = document.getElementById('pageTitle');
+  const profilePic = document.getElementById('profilePic');
+  const telegramBtn = document.getElementById('telegramBtn');
 
-    function updateMeta() {
-      const title = document.getElementById('title').value.trim();
-      const subtitle = document.getElementById('subtitle').value.trim();
-      const image = document.getElementById('image').value.trim();
-      const telegram = document.getElementById('telegram').value.trim();
+  db.ref('meta').once('value').then(snapshot => {
+    const data = snapshot.val();
+    if (data) {
+      pageTitle.innerText = data.title || 'INSTAGRAM VIRAL VIDEOS';
+      profilePic.src = data.image || '';
+      telegramBtn.href = data.telegram || '#';
+    }
+  });
 
-      db.ref('meta').set({
-        title, subtitle, image, telegram
-      }).then(() => {
-        document.getElementById('msg').innerText = '✅ Meta updated successfully!';
+  db.ref('posts').on('value', snapshot => {
+    postsContainer.innerHTML = '';
+    const data = snapshot.val();
+    if (data) {
+      Object.values(data).forEach(post => {
+        const a = document.createElement('a');
+        a.href = post.link;
+        a.target = '_blank';
+        a.className = 'btn';
+        a.innerText = post.text;
+        postsContainer.appendChild(a);
       });
     }
-
-    function addPost() {
-      const title = document.getElementById('postTitle').value.trim();
-      const link = document.getElementById('postLink').value.trim();
-      const msg = document.getElementById('msg');
-
-      if (!title || !link) {
-        msg.style.color = 'red';
-        msg.textContent = 'Both title and link are required!';
-        return;
-      }
-
-      const postKey = title.replace(/\s+/g, '').toLowerCase();
-      db.ref('posts/' + postKey).set({ text: title, link: link })
-        .then(() => {
-          msg.style.color = 'green';
-          msg.textContent = '✅ Link added successfully!';
-          document.getElementById('postTitle').value = '';
-          document.getElementById('postLink').value = '';
-        })
-        .catch(error => {
-          msg.style.color = 'red';
-          msg.textContent = 'Error: ' + error.message;
-        });
-    }
-  </script></body>
+  });
+</script></body>
 </html>
