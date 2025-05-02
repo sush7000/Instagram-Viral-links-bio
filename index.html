@@ -5,16 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title id="pageTitle">Instagram Viral Videos</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
       margin: 0;
-      padding: 0;
+      background: #f4f4f4;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
     }
     .container {
-      max-width: 500px;
-      margin: 0 auto;
-      padding: 20px 15px;
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
       text-align: center;
     }
     .profile-pic {
@@ -27,8 +31,9 @@
       font-size: 26px;
       margin: 10px 0;
     }
-    p {
+    #captionText {
       font-size: 16px;
+      margin: 10px 0 20px 0;
     }
     .btn {
       display: block;
@@ -45,6 +50,7 @@
     }
     .telegram-btn {
       background-color: #0088cc;
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -56,18 +62,16 @@
     }
     .image-preview {
       width: 100%;
-      margin: 10px 0;
       border-radius: 8px;
-      display: block;
+      margin-top: 10px;
     }
-    input[type="text"] {
+    #searchInput {
       width: 100%;
       padding: 12px;
       font-size: 16px;
-      border: 1px solid #ccc;
       border-radius: 8px;
-      box-sizing: border-box;
-      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      margin: 20px 0 10px 0;
     }
   </style>
 </head>
@@ -75,17 +79,18 @@
   <div class="container">
     <img id="headerImage" src="" class="profile-pic" alt="Profile" />
     <h1 id="titleText">Instagram Viral Videos</h1>
-    <p id="subtitleText">🔥 All links from bio — click to open!</p>
+    <p id="captionText">🔥 All links from bio — click to open!</p>
+
     <a id="telegramLink" href="#" class="btn telegram-btn" target="_blank">
-      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" />
-      <span>Join Telegram</span>
+      <img src="https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg" alt="Telegram Icon" />
+      Join Telegram
     </a>
 
     <input type="text" id="searchInput" placeholder="Search posts..." />
-
     <div id="posts"></div>
   </div>
 
+  <!-- Firebase Scripts -->
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
   <script>
@@ -101,7 +106,6 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
     const postsContainer = document.getElementById("posts");
     const searchInput = document.getElementById("searchInput");
 
@@ -112,37 +116,47 @@
         document.getElementById("titleText").innerText = meta.title || "Instagram Viral Videos";
         document.getElementById("headerImage").src = meta.image || "https://i.imgur.com/Cv0Rj5z.png";
         document.getElementById("telegramLink").href = meta.telegram || "#";
-        document.getElementById("subtitleText").innerText = meta.subtitle || "🔥 All links from bio — click to open!";
+        document.getElementById("captionText").innerText = meta.caption || "🔥 All links from bio — click to open!";
       }
     });
 
-    function renderPosts(data) {
+    let allPosts = [];
+
+    function renderPosts(posts) {
       postsContainer.innerHTML = "";
-      Object.keys(data).forEach(key => {
-        const post = data[key];
-        if (post.text.toLowerCase().includes(searchInput.value.toLowerCase()) || post.link.toLowerCase().includes(searchInput.value.toLowerCase())) {
-          if (post.image) {
-            const img = document.createElement("img");
-            img.src = post.image;
-            img.className = "image-preview";
-            postsContainer.appendChild(img);
-          }
-          const a = document.createElement("a");
-          a.href = post.link;
-          a.className = "btn";
-          a.target = "_blank";
-          a.innerText = post.text;
-          postsContainer.appendChild(a);
+      posts.forEach(post => {
+        if (post.image) {
+          const img = document.createElement("img");
+          img.src = post.image;
+          img.className = "image-preview";
+          postsContainer.appendChild(img);
         }
+        const a = document.createElement("a");
+        a.href = post.link;
+        a.className = "btn";
+        a.target = "_blank";
+        a.innerText = post.text;
+        postsContainer.appendChild(a);
       });
     }
 
     db.ref("posts").on("value", (snapshot) => {
       const data = snapshot.val();
+      allPosts = [];
       if (data) {
-        renderPosts(data);
-        searchInput.addEventListener("input", () => renderPosts(data));
+        Object.keys(data).forEach(key => {
+          allPosts.push(data[key]);
+        });
+        renderPosts(allPosts);
       }
+    });
+
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.toLowerCase();
+      const filtered = allPosts.filter(post =>
+        post.text.toLowerCase().includes(query) || post.link.toLowerCase().includes(query)
+      );
+      renderPosts(filtered);
     });
   </script>
 </body>
