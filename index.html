@@ -1,20 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Instagram Viral Videos</title>
   <style>
-    html, body {
+    body {
       margin: 0;
       padding: 0;
-      height: 100%;
       font-family: Arial, sans-serif;
       background-color: #f2f2f2;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     .container {
+      max-width: 600px;
+      width: 100%;
       padding: 20px;
+      text-align: center;
     }
     .profile-pic {
       width: 140px;
@@ -57,23 +60,24 @@
     .btn:hover {
       background-color: #45a049;
     }
+    #searchBox {
+      margin-top: 20px;
+      padding: 10px;
+      font-size: 18px;
+      width: 100%;
+      max-width: 450px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
   </style>
 </head>
-<body>
-
-<div class="container">
+<body><div class="container">
   <img src="https://i.imgur.com/Cv0Rj5z.png" alt="Profile Pic" class="profile-pic">
   <h1>INSTAGRAM VIRAL VIDEOS</h1>
-  <p>🥵👇 ALL VIDEOS LINK FROM INSTAGRAM BIO 👇🥵</p>
+  <p>🥵👇 ALL VIDEOS LINK FROM INSTAGRAM BIO 👇🥵</p>  <!-- Telegram Join Button --><a href="https://t.me/YourTelegramLink" target="_blank" class="telegram-btn">📢 Join Telegram For Random Videos 📢</a>
 
-  <a href="https://t.me/YourTelegramLink" target="_blank" class="telegram-btn">📢 Join Telegram For Random Videos 📢</a>
-  <div id="posts"></div>
-</div>
-
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script>
+  <!-- Search Box -->  <input type="text" id="searchBox" placeholder="Search by post title or link...">  <!-- Dynamic Buttons -->  <div id="posts"></div>
+</div><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
   const firebaseConfig = {
     apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
     authDomain: "trending-viral-links.firebaseapp.com",
@@ -87,23 +91,37 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   const postsContainer = document.getElementById('posts');
+  const searchBox = document.getElementById('searchBox');
 
-  db.ref('posts').on('value', (snapshot) => {
+  function renderPosts(data) {
     postsContainer.innerHTML = '';
-    const data = snapshot.val();
-    if (data) {
-      Object.keys(data).forEach(key => {
-        const post = data[key];
-        const a = document.createElement('a');
-        a.href = post.link;
-        a.target = '_blank';
-        a.className = 'btn';
-        a.innerText = post.text;
-        postsContainer.appendChild(a);
-      });
-    }
-  });
-</script>
+    Object.keys(data).forEach(key => {
+      const post = data[key];
+      const a = document.createElement('a');
+      a.href = post.link;
+      a.target = '_blank';
+      a.className = 'btn';
+      a.innerText = post.text;
+      postsContainer.appendChild(a);
+    });
+  }
 
-</body>
+  let postData = {};
+  db.ref('posts').on('value', (snapshot) => {
+    postData = snapshot.val() || {};
+    renderPosts(postData);
+  });
+
+  searchBox.addEventListener('input', () => {
+    const query = searchBox.value.toLowerCase();
+    const filtered = {};
+    Object.keys(postData).forEach(key => {
+      const post = postData[key];
+      if (post.text.toLowerCase().includes(query) || post.link.toLowerCase().includes(query)) {
+        filtered[key] = post;
+      }
+    });
+    renderPosts(filtered);
+  });
+</script></body>
 </html>
