@@ -1,147 +1,111 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Update Page</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title id="pageTitle">Instagram Viral Videos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f8f8f8;
+      background-color: #f4f4f4;
       margin: 0;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      text-align: center;
     }
-    h2 {
-      margin-top: 30px;
-      margin-bottom: 10px;
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
     }
-    .card {
-      background: white;
-      padding: 20px;
+    h1 {
+      font-size: 26px;
+      margin: 10px 0;
+    }
+    p {
+      font-size: 16px;
+    }
+    .btn {
+      display: block;
+      background-color: #4CAF50;
+      color: white;
+      padding: 14px;
       border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      margin: 10px;
-      width: 100%;
-      max-width: 500px;
+      width: 95%;
+      max-width: 400px;
+      margin: 15px auto;
+      font-size: 18px;
+      text-decoration: none;
+      font-weight: bold;
+      box-shadow: 0px 2px 6px rgba(0,0,0,0.2);
     }
-    input, textarea {
+    .image-preview {
       width: 100%;
-      padding: 10px;
-      margin: 5px 0 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 16px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 5px;
-      margin-right: 5px;
-      cursor: pointer;
-    }
-    .green { background: #4CAF50; color: white; }
-    .blue { background: #2196F3; color: white; }
-    .red { background: #f44336; color: white; }
-    .gray { background: #555; color: white; }
-    .search-bar {
-      max-width: 500px;
-      width: 100%;
+      max-width: 400px;
+      margin: 10px auto;
+      border-radius: 8px;
+      display: block;
     }
   </style>
 </head>
-<body><h2>Update Meta Content</h2>
-<div class="card">
-  <button class="gray" onclick="toggleMeta()">Edit Meta</button>
-  <div id="metaForm" style="display:none">
-    <input type="text" id="pageTitle" placeholder="Page Title">
-    <input type="text" id="pageImage" placeholder="Image URL">
-    <input type="text" id="telegramLink" placeholder="Telegram Link">
-    <button onclick="saveMeta()">Save Meta</button>
-  </div>
-</div><h2>Add New Post Link</h2>
-<div class="card">
-  <input type="text" id="title" placeholder="Title (e.g. Post #1)">
-  <textarea id="link" placeholder="Paste your full URL here..."></textarea>
-  <input type="text" id="image" placeholder="Preview Image URL (optional)">
-  <button class="green" onclick="addPost()">Add Link</button>
-</div><h2>Search Posts</h2>
-<div class="card search-bar">
-  <input type="text" id="searchInput" placeholder="Search by title or link..." oninput="renderPosts()">
-</div><h2>All Posts</h2>
-<div id="posts"></div><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script><script>
-const firebaseConfig = {
-  apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
-  authDomain: "trending-viral-links.firebaseapp.com",
-  databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
-  projectId: "trending-viral-links",
-  storageBucket: "trending-viral-links.appspot.com",
-  messagingSenderId: "803173160374",
-  appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+<body>
 
-function toggleMeta() {
-  document.getElementById("metaForm").style.display = 'block';
-}
-function saveMeta() {
-  const title = document.getElementById("pageTitle").value.trim();
-  const image = document.getElementById("pageImage").value.trim();
-  const telegram = document.getElementById("telegramLink").value.trim();
-  db.ref("meta").set({ title, image, telegram });
-}
+  <img id="headerImage" src="" class="profile-pic" alt="Profile" />
+  <h1 id="titleText">Instagram Viral Videos</h1>
+  <p>🔥 All links from bio — click to open!</p>
+  <a id="telegramLink" href="#" class="btn" target="_blank">📢 Join Telegram</a>
 
-function addPost() {
-  const title = document.getElementById("title").value.trim();
-  const link = document.getElementById("link").value.trim();
-  const image = document.getElementById("image").value.trim();
-  if (!title || !link) return;
-  const key = title.replace(/\s+/g, '').toLowerCase();
-  db.ref('posts/' + key).set({ text: title, link: link, image: image || '' });
-  document.getElementById("title").value = '';
-  document.getElementById("link").value = '';
-  document.getElementById("image").value = '';
-}
+  <div id="posts"></div>
 
-function renderPosts() {
-  const search = document.getElementById("searchInput").value.trim().toLowerCase();
-  db.ref('posts').once('value', snapshot => {
-    const data = snapshot.val() || {};
-    const container = document.getElementById("posts");
-    container.innerHTML = '';
-    Object.keys(data).forEach(key => {
-      const { text, link, image } = data[key];
-      if (text.toLowerCase().includes(search) || link.toLowerCase().includes(search)) {
-        const card = document.createElement('div');
-        card.className = 'card';
-        const t = document.createElement('input');
-        t.value = text;
-        const l = document.createElement('textarea');
-        l.value = link;
-        const img = document.createElement('input');
-        img.value = image || '';
-        const saveBtn = document.createElement('button');
-        saveBtn.className = 'blue';
-        saveBtn.innerText = 'Save';
-        saveBtn.onclick = () => db.ref('posts/' + key).set({ text: t.value, link: l.value, image: img.value });
-        const delBtn = document.createElement('button');
-        delBtn.className = 'red';
-        delBtn.innerText = 'Delete';
-        delBtn.onclick = () => db.ref('posts/' + key).remove().then(() => renderPosts());
-        card.appendChild(t);
-        card.appendChild(l);
-        card.appendChild(img);
-        card.appendChild(saveBtn);
-        card.appendChild(delBtn);
-        container.appendChild(card);
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyDeh2YAbTvupfNhEbT1uDBvoNiW1KQU9-o",
+      authDomain: "trending-viral-links.firebaseapp.com",
+      databaseURL: "https://trending-viral-links-default-rtdb.firebaseio.com",
+      projectId: "trending-viral-links",
+      storageBucket: "trending-viral-links.appspot.com",
+      messagingSenderId: "803173160374",
+      appId: "1:803173160374:web:fc0bb2ab64564f59ee9d17"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const postsContainer = document.getElementById("posts");
+
+    db.ref("meta").once("value", (snap) => {
+      const meta = snap.val();
+      if (meta) {
+        document.getElementById("pageTitle").innerText = meta.title || "Instagram Viral Videos";
+        document.getElementById("titleText").innerText = meta.title || "Instagram Viral Videos";
+        document.getElementById("headerImage").src = meta.image || "https://i.imgur.com/Cv0Rj5z.png";
+        document.getElementById("telegramLink").href = meta.telegram || "#";
       }
     });
-  });
-}
 
-renderPosts();
-</script></body>
+    db.ref("posts").on("value", (snapshot) => {
+      postsContainer.innerHTML = "";
+      const data = snapshot.val();
+      if (data) {
+        Object.keys(data).forEach(key => {
+          const post = data[key];
+          if (post.image) {
+            const img = document.createElement("img");
+            img.src = post.image;
+            img.className = "image-preview";
+            postsContainer.appendChild(img);
+          }
+          const a = document.createElement("a");
+          a.href = post.link;
+          a.className = "btn";
+          a.target = "_blank";
+          a.innerText = post.text;
+          postsContainer.appendChild(a);
+        });
+      }
+    });
+  </script>
+</body>
 </html>
